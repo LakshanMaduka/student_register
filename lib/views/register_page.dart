@@ -16,6 +16,11 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+  bool isEdit = false;
+  String? _birtday;
+  String? _selectedGender;
+  String? id;
+
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -29,6 +34,29 @@ class _RegisterPageState extends State<RegisterPage> {
   final FocusNode _phoneFocusNode = FocusNode();
   final FocusNode _dobFocusNode = FocusNode();
   final FocusNode _addressFocusNode = FocusNode();
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration.zero, () {
+      if (ModalRoute.of(context)?.settings.arguments != null) {
+        final studentMap = ModalRoute.of(context)?.settings.arguments as Map;
+
+        final student = studentMap['details'];
+
+        setState(() {
+          _nameController.text = student.name;
+          _emailController.text = student.email;
+          _phNoController.text = student.phoneNumber;
+          _selectedGender = student.gender;
+          _dobController.text = student.birthday;
+          _addressController.text = student.address;
+          id = student.id;
+          _birtday = student.birthday!;
+          isEdit = true;
+        });
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -48,8 +76,6 @@ class _RegisterPageState extends State<RegisterPage> {
     _addressFocusNode.dispose();
   }
 
-  String? _selectedGender;
-  late String _birtday;
   bool _validateEmail(String email) {
     return RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
         .hasMatch(email);
@@ -82,7 +108,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 TopContainer(
                   height: height * 0.2,
                   width: width,
-                  title: "REGISTER FORM",
+                  title: isEdit ? "UPDATE USER" : "REGISTER FORM",
                 ),
                 Container(
                   height: height - height * 0.35,
@@ -223,31 +249,40 @@ class _RegisterPageState extends State<RegisterPage> {
                                     content: Text("Please select Birthday")));
                           }
                           if (_formKey.currentState!.validate()) {
-                            print("called");
                             final newStudent = Student(
                               id: '',
                               name: _nameController.text.trim(),
                               email: _emailController.text.trim(),
                               phoneNumber: _phNoController.text.trim(),
                               gender: _selectedGender,
-                              birthday: _birtday,
+                              birthday: _birtday!,
                               address: _addressController.text.trim(),
                             );
-                            studentService.saveStudent(
-                                id: newStudent.id,
-                                name: newStudent.name,
-                                email: newStudent.email,
-                                phoneNumber: newStudent.phoneNumber,
-                                gender: newStudent.gender!,
-                                birthday: newStudent.birthday,
-                                address: newStudent.address,
-                                context: context,
-                                btnOkOnPress: clearFeilds);
-                            print(newStudent);
+                            isEdit
+                                ? studentService.updateStudent(
+                                    id: id!,
+                                    name: newStudent.name,
+                                    email: newStudent.email,
+                                    phoneNumber: newStudent.phoneNumber,
+                                    gender: newStudent.gender!,
+                                    birthday: newStudent.birthday,
+                                    address: newStudent.address,
+                                    context: context,
+                                    btnOkOnPress: () {})
+                                : studentService.saveStudent(
+                                    id: newStudent.id,
+                                    name: newStudent.name,
+                                    email: newStudent.email,
+                                    phoneNumber: newStudent.phoneNumber,
+                                    gender: newStudent.gender!,
+                                    birthday: newStudent.birthday,
+                                    address: newStudent.address,
+                                    context: context,
+                                    btnOkOnPress: clearFeilds);
                           } else {}
                         },
                         child: Text(
-                          "SAVE",
+                          isEdit ? "Update" : "SAVE",
                           style: TextStyle(fontSize: 20),
                         ),
                       ),

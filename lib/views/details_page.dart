@@ -1,3 +1,4 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:student_register/components/top_container.dart';
 import 'package:student_register/services/student_service.dart';
@@ -80,12 +81,44 @@ class _DetailsPageState extends State<DetailsPage> {
                                           Text(student.address),
                                         ],
                                       ),
-                                      trailing: const Row(
+                                      trailing: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          Icon(Icons.edit),
+                                          IconButton(
+                                              onPressed: () {
+                                                Navigator.of(context).pushNamed(
+                                                    "/edit",
+                                                    arguments: {
+                                                      'details': student
+                                                    });
+                                              },
+                                              icon: Icon(Icons.edit)),
                                           SizedBox(width: 8.0),
-                                          Icon(Icons.delete),
+                                          IconButton(
+                                              onPressed: () {
+                                                AwesomeDialog(
+                                                  context: context,
+                                                  dialogType:
+                                                      DialogType.warning,
+                                                  headerAnimationLoop: false,
+                                                  animType:
+                                                      AnimType.bottomSlide,
+                                                  title: 'Are you sure ?',
+                                                  buttonsTextStyle:
+                                                      const TextStyle(
+                                                          color: Colors.black),
+                                                  showCloseIcon: true,
+                                                  btnCancelOnPress: () {},
+                                                  btnOkOnPress: () {
+                                                    _studentService
+                                                        .deleteFunction(
+                                                            student.id,
+                                                            context);
+                                                    setState(() {});
+                                                  },
+                                                ).show();
+                                              },
+                                              icon: Icon(Icons.delete)),
                                         ],
                                       ),
                                     ),

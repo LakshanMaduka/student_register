@@ -10,6 +10,7 @@ import 'package:student_register/utils/const.dart';
 import 'package:student_register/utils/utills.dart';
 
 class StudentService {
+  //save student details
   void saveStudent({
     void Function()? btnOkOnPress,
     required BuildContext context,
@@ -54,6 +55,7 @@ class StudentService {
     }
   }
 
+//Fetch data from the backend
   Future<List<Student>> fetchStudents() async {
     late http.Response response;
     List<Student> students = [];
@@ -84,23 +86,72 @@ class StudentService {
       throw Future.error(e);
     }
   }
-  // Future<List<Student>> fetchStudents() async {
-  //   late http.Response response;
 
-  //   try {
-  //     response = await http.get(
-  //       Uri.parse('$URI/student'),
-  //     );
-  //     if (response.statusCode == 200) {
-  //       final studentList = jsonDecode(response.body);
-  //       final student = Student.fromMap(studentList);
+  // delete student
+  void deleteFunction(String id, BuildContext context) async {
+    late http.Response response;
+    try {
+      response = await http.delete(Uri.parse('$URI/student/delete/$id'));
+      httpErrorHandle(
+          response: response,
+          context: context,
+          onSuccsess: () {
+            AwesomeDialog(
+                    context: context,
+                    animType: AnimType.scale,
+                    dialogType: DialogType.success,
+                    title: "Delete Successful !",
+                    btnOkOnPress: () {})
+                .show();
+          });
+    } catch (e) {
+      throw e;
+    }
+  }
 
-  //       return student;
-  //     } else {
-  //       return Future.error("Something went wrong, ${response.statusCode}");
-  //     }
-  //   } catch (e) {
-  //     throw Future.error(e);
-  //   }
-  // }
+  // updateUser
+  void updateStudent({
+    void Function()? btnOkOnPress,
+    required BuildContext context,
+    required String id,
+    required String name,
+    required String email,
+    required String phoneNumber,
+    required String gender,
+    required String birthday,
+    required String address,
+  }) async {
+    try {
+      Student student = Student(
+          id: id,
+          name: name,
+          email: email,
+          phoneNumber: phoneNumber,
+          gender: gender,
+          birthday: birthday,
+          address: address);
+
+      http.Response res = await http.put(Uri.parse('$URI/student/update/$id'),
+          body: student.toJson(),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          });
+
+      httpErrorHandle(
+          response: res,
+          context: context,
+          onSuccsess: () {
+            AwesomeDialog(
+                    context: context,
+                    animType: AnimType.scale,
+                    dialogType: DialogType.success,
+                    title: "Update Successful !",
+                    btnOkOnPress: btnOkOnPress)
+                .show();
+          });
+    } catch (e) {
+      print(e);
+      throw e;
+    }
+  }
 }

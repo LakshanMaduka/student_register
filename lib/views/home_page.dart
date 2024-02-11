@@ -36,7 +36,7 @@ class HomePage extends StatelessWidget {
                       text: "REGISTRATION",
                       imagePath: "assets/images/registration.png",
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 20,
                     ),
                     HomeCard(
